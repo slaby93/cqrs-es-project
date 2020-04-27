@@ -2,6 +2,8 @@ require('babel-register');
 
 const Koa = require('koa');
 const Router = require('koa-router');
+const logger = require('koa-logger')
+const cors = require('@koa/cors');
 
 const app = new Koa();
 const router = new Router();
@@ -23,5 +25,7 @@ router.delete("/group/:groupid/:userid", (ctx, next) => {
 })
 
 app
+  .use(cors())
+  .use(logger())
   .use(router.routes())
   .listen(9001);
