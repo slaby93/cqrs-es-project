@@ -1,0 +1,17 @@
+{
+  "name": "commands_processor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./src/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "babel-register": "^6.26.0",
+    "koa": "^2.11.0",
+    "koa-router": "^8.0.8"
+  }
+}
