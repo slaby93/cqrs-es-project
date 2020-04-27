@@ -1,0 +1,27 @@
+# To execute this docker-compose yml file use `docker-compose -f <file_name> up`
+# Add the `-d` flag at the end for detached execution
+version: "3"
+services:
+  web_client:
+    build:
+      context: services/web_client
+    ports:
+      - "9000:9000"
+    networks:
+      - main
+    volumes:
+      - "./services/web_client/src/:/app/src"
+  commands_processor:
+    build:
+      context: services/commands_processor
+    ports:
+      - "9001:9001"
+    networks:
+      - main
+    volumes:
+      - "./services/commands_processor/src/:/app/src"
+  
+  
+networks:
+  main:
+      
