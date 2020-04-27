@@ -7,10 +7,11 @@ const COMMANDS = {
 }
 
 const App = () => {
-  const [userId, setUserId] = React.useState('qwewqe')
-  const issueCommand = async (command, userId) => {
+  const [userId, setUserId] = React.useState('123')
+  const [groupId, setGroupId] = React.useState('456')
+  const issueCommand = async (command) => {
     try {
-      await fetch("http://localhost:9001/group/123/456", {
+      await fetch(`http://localhost:9001/group/${groupId}/${userId}`, {
         method: command === COMMANDS.ADD_TO_GROUP ? 'POST' : 'DELETE',
         cache: 'no-cache',
         headers: {
@@ -23,11 +24,23 @@ const App = () => {
   }
   return (
     <div>
-      <input value={userId} onChange={React.useCallback(event => setUserId(event.target.value), [userId])} />
-      <button onClick={React.useCallback(() => issueCommand(COMMANDS.ADD_TO_GROUP, userId))}>
+      <section>
+        <div>
+          <label>GroupID
+            <input value={groupId} onChange={React.useCallback(event => setGroupId(event.target.value), [userId])} />
+          </label>
+        </div>
+        <div>
+          <label>UserID
+            <input value={userId} onChange={React.useCallback(event => setUserId(event.target.value), [userId])} />
+          </label>
+        </div>
+      </section>
+
+      <button onClick={React.useCallback(() => issueCommand(COMMANDS.ADD_TO_GROUP))}>
         Add to group
       </button>
-      <button onClick={React.useCallback(() => issueCommand(COMMANDS.REMOVE_FROM_GROUP, userId))}>
+      <button onClick={React.useCallback(() => issueCommand(COMMANDS.REMOVE_FROM_GROUP))}>
         Remove from group
         </button>
     </div>
