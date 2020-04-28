@@ -1,2 +1,3 @@
 start:
-	docker-compose up --build
+	docker-compose rm -svf 
+	docker-compose up --build --remove-orphans
