@@ -59,10 +59,7 @@ const setup = async () => {
     timeout: 1000,
   })
   const kafkaProducer = kafka.producer()
-  console.log('Connecting')
   await kafkaProducer.connect()
-  console.log({ kafkaProducer })
-
   const app = new Koa();
   const router = new Router();
   createRoutes(router, kafkaProducer)

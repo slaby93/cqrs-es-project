@@ -23,18 +23,29 @@ services:
       - main
     volumes:
       - "./services/commands_processor/src/:/app/src"
+  groups_service:
+    depends_on:
+      - zookeeper
+      - kafka
+      - commands_processor
+    build:
+      context: services/groups_service
+    networks:
+      - main
+    volumes:
+      - "./services/groups_service/src/:/app/src"
   zookeeper:
     image: wurstmeister/zookeeper:3.4.6
     expose:
-    - "2181"
+      - "2181"
     networks:
       main:
   kafka:
     image: wurstmeister/kafka:2.11-2.0.0
     depends_on:
-    - zookeeper
+      - zookeeper
     ports:
-    - "9092:9092"
+      - "9092:9092"
     environment:
       KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9093,OUTSIDE://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
@@ -45,4 +56,3 @@ services:
       main:
 networks:
   main:
-      
