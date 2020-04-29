@@ -1,0 +1,25 @@
+{
+  "name": "commands_processor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon ./src/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@koa/cors": "^2.2.3",
+    "babel-register": "^6.26.0",
+    "kafkajs": "^1.12.0",
+    "koa": "^2.11.0",
+    "koa-logger": "^3.2.1",
+    "koa-router": "^8.0.8",
+    "node-eventstore-client": "^0.2.16",
+    "uuid": "^7.0.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.3"
+  }
+}
