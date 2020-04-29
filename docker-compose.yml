@@ -34,6 +34,25 @@ services:
       - main
     volumes:
       - "./services/groups_service/src/:/app/src"
+  eventstore1:
+   image: eventstore/eventstore:release-5.0.1
+   environment:
+     - EVENTSTORE_NODE_PRIORITY=3
+     - EVENTSTORE_EXT_HTTP_PORT=2113
+     - EVENTSTORE_EXT_TCP_PORT=1113
+     - EVENTSTORE_EXT_HTTP_PREFIXES=http://*:2113/
+   ports:
+     - 1113:1113
+     - 2113:2113
+   volumes:
+     - "~/Data/eventstore3node/node1:/var/lib/eventstore"
+   restart: always
+   healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:2113/stats || exit 1"]
+      interval: 5s
+      timeout: 2s
+   networks:
+     main:
   zookeeper:
     image: wurstmeister/zookeeper:3.4.6
     expose:
