@@ -10,7 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "kafkajs": "^1.12.0"
+    "kafkajs": "^1.12.0",
+    "redis": "^3.0.2"
   },
   "devDependencies": {
     "nodemon": "^2.0.3"

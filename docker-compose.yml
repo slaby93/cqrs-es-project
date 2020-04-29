@@ -73,5 +73,11 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
     networks:
       main:
+  redis:
+    image: 'bitnami/redis:latest'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    networks:
+      - main
 networks:
   main:
