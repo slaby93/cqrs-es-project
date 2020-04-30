@@ -13,18 +13,27 @@ const COMMANDS = {
   ADD_TO_GROUP: 'ADD_TO_GROUP',
   REMOVE_FROM_GROUP: 'REMOVE_FROM_GROUP',
 }
+const EVENTS = {
+  USER_ADDED_TO_GROUP: 'USER_ADDED_TO_GROUP',
+  USER_REMOVED_FROM_GROUP: 'USER_REMOVED_FROM_GROUP',
+}
+const ERRORS = {
+  USER_ALREADY_IN_GROUP: 'USER_ALREADY_IN_GROUP',
+  USER_NOT_IN_GROUP: 'USER_NOT_IN_GROUP',
+}
 const STREAM_NAME = "groups_stream";
 
-const handleRoute = (command, kafkaProducer, esConnection) => (async (ctx, next) => {
+const handleRoute = (command, eventType, kafkaProducer, esConnection) => (async (ctx, next) => {
   const [ groupid, userid ] = ctx.captures
   try {
+    await validate[command](groupid, userid)
     const event = {
       id: uuid.v4(),
-      command: command,
+      type: eventType,
       userId: userid,
       groupId: groupid,
     };
-    const eventStoreEvent = esClient.createJsonEventData(event.id, event, null, 'testEvent');
+    const eventStoreEvent = esClient.createJsonEventData(event.id, event, null, eventType);
     const eventStoreResponse = await esConnection.appendToStream(STREAM_NAME, esClient.expectedVersion.any, eventStoreEvent)
     const kafkaResponse = await kafkaProducer.send({
       topic: MEMBERSHIP_TOPIC_NAME,
@@ -44,7 +53,7 @@ const handleRoute = (command, kafkaProducer, esConnection) => (async (ctx, next)
   } catch(error) {
     console.error(error)
     ctx.body = JSON.stringify({
-      error,
+      error: `${error}`,
     })
     ctx.res.statusCode = 500
   } finally {
@@ -52,9 +61,20 @@ const handleRoute = (command, kafkaProducer, esConnection) => (async (ctx, next)
   }
 })
 
+const validators = {
+  [COMMANDS.ADD_TO_GROUP]: async (groupid, userid) => {
+    // TODO: validate if can add user to group
+    // throw new Error(ERRORS.USER_ALREADY_IN_GROUP)
+  },
+  [COMMANDS.REMOVE_FROM_GROUP]: async (groupid, userid) => {
+    // TODO: validate if can remove add user to group
+    // throw new Error(ERRORS.USER_NOT_IN_GROUP)
+  }
+}
+
 const createRoutes = (router, kafkaProducer, esConnection) => {
-  router.post("/group/:groupid/:userid",  handleRoute(COMMANDS.ADD_TO_GROUP, kafkaProducer, esConnection))
-  router.delete("/group/:groupid/:userid", handleRoute(COMMANDS.REMOVE_FROM_GROUP, kafkaProducer, esConnection))
+  router.post("/group/:groupid/:userid",  handleRoute(COMMANDS.ADD_TO_GROUP, EVENTS.ADDED_TO_GROUP, kafkaProducer, esConnection))
+  router.delete("/group/:groupid/:userid", handleRoute(COMMANDS.REMOVE_FROM_GROUP, EVENTS.REMOVED_FROM_GROUP, kafkaProducer, esConnection))
 }
 
 const createEventStoreConnection = async () => {

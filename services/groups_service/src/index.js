@@ -35,4 +35,10 @@ const main = async () => {
   redisClient.get("key", redis.print);
 }
 
+const eventHandlers = {
+  "" : async () => {
+
+  }
+}
+
 main()
