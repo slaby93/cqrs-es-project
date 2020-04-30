@@ -1,5 +1,5 @@
 # cqrs-es-project
-Simple CQRS/ES system that contains several services capable of managing users in groups.
+Simple CQRS/ES system that contains several services capable of managing users in groups. Purpose of this project is to have try to implement simple CQRS/ES system, not build production grade , bulletproof system  with typescript CI and all the fireworks ( maybe at the end I will think about it ). So most of the time is spend on connecting services rather then perfect code.
 
 ## How to run
 ### Prerequisites
