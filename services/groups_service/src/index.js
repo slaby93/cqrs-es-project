@@ -1,14 +1,12 @@
 const { Kafka } = require('kafkajs')
 const redis = require("redis");
+const {
+  MEMBERSHIP_TOPIC_NAME,
+  KAFKA_GROUP_ID,
+  EVENTS,
+  SIGNALS
+} = require('./constants.js')
 
-
-const MEMBERSHIP_TOPIC_NAME = 'membership_topic'
-const KAFKA_GROUP_ID = 'test-group'
-const EVENTS = {
-  USER_ADDED_TO_GROUP: 'USER_ADDED_TO_GROUP',
-  USER_REMOVED_FROM_GROUP: 'USER_REMOVED_FROM_GROUP',
-}
-const SIGNALS = ["SIGUSR2", "SIGHUP", "SIGINT", "SIGQUIT", "SIGTERM"]
 
 const main = async () => {
   const redisClient = redis.createClient({
@@ -57,6 +55,7 @@ const eventHandlers = {
     redisClient.SADD(groupId, userId);
   },
   [EVENTS.USER_REMOVED_FROM_GROUP]: async (event, redisClient) => {
+    const { userId, groupId } = event
     redisClient.SREM(groupId, userId);
   }
 }
