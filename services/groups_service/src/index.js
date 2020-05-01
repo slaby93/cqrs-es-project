@@ -53,16 +53,11 @@ const main = async () => {
 
 const eventHandlers = {
   [EVENTS.USER_ADDED_TO_GROUP]: async (event, redisClient) => {
-    console.log(event)
     const { userId, groupId } = event
-    redisClient.SADD(groupId, userId, redis.print);
-    redisClient.SMEMBERS(groupId, members => console.log(members))
+    redisClient.SADD(groupId, userId);
   },
   [EVENTS.USER_REMOVED_FROM_GROUP]: async (event, redisClient) => {
-    console.log(event)
-    const { userId, groupId } = event
-    redisClient.SREM(groupId, userId, redis.print);
-    redisClient.SMEMBERS(groupId, members => console.log(members))
+    redisClient.SREM(groupId, userId);
   }
 }
 
