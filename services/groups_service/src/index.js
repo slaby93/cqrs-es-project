@@ -3,6 +3,7 @@ const redis = require("redis");
 
 
 const MEMBERSHIP_TOPIC_NAME = 'membership_topic'
+const KAFKA_GROUP_ID = 'test-group'
 
 const main = async () => {
   const redisClient = redis.createClient({ host: 'redis' });
@@ -15,18 +16,18 @@ const main = async () => {
     timeout: 1000,
   })
 
-  const kafkaConsumer = kafka.consumer({ groupId: 'test-group' })
+  const kafkaConsumer = kafka.consumer({ groupId: KAFKA_GROUP_ID })
   await kafkaConsumer.connect()
-  await kafkaConsumer.subscribe({ topic: MEMBERSHIP_TOPIC_NAME, fromBeginning: true })
+  await kafkaConsumer.subscribe({ 
+    topic: MEMBERSHIP_TOPIC_NAME
+  })
   redisClient.on("error", function (error) {
     console.error(error);
   });
   kafkaConsumer.run({
     eachMessage: async ({ topic, partition, message }) => {
       console.log({
-        topic,
         partition,
-        value: message.value.toString(),
       })
     },
   });

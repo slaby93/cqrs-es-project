@@ -24,9 +24,9 @@ const ERRORS = {
 const STREAM_NAME = "groups_stream";
 
 const handleRoute = (command, eventType, kafkaProducer, esConnection) => (async (ctx, next) => {
-  const [ groupid, userid ] = ctx.captures
+  const [groupid, userid] = ctx.captures
   try {
-    await validate[command](groupid, userid)
+    await validators[command](groupid, userid)
     const event = {
       id: uuid.v4(),
       type: eventType,
@@ -39,7 +39,7 @@ const handleRoute = (command, eventType, kafkaProducer, esConnection) => (async 
       topic: MEMBERSHIP_TOPIC_NAME,
       messages: [
         {
-          value: JSON.stringify(event)
+          value: JSON.stringify(event),
         }
       ],
       compression: 1
@@ -50,7 +50,7 @@ const handleRoute = (command, eventType, kafkaProducer, esConnection) => (async 
       eventStoreResponse,
     })
     ctx.res.statusCode = 200
-  } catch(error) {
+  } catch (error) {
     console.error(error)
     ctx.body = JSON.stringify({
       error: `${error}`,
@@ -73,7 +73,7 @@ const validators = {
 }
 
 const createRoutes = (router, kafkaProducer, esConnection) => {
-  router.post("/group/:groupid/:userid",  handleRoute(COMMANDS.ADD_TO_GROUP, EVENTS.ADDED_TO_GROUP, kafkaProducer, esConnection))
+  router.post("/group/:groupid/:userid", handleRoute(COMMANDS.ADD_TO_GROUP, EVENTS.ADDED_TO_GROUP, kafkaProducer, esConnection))
   router.delete("/group/:groupid/:userid", handleRoute(COMMANDS.REMOVE_FROM_GROUP, EVENTS.REMOVED_FROM_GROUP, kafkaProducer, esConnection))
 }
 
@@ -83,10 +83,10 @@ const createEventStoreConnection = async () => {
     const esConnection = esClient.createConnection(connSettings, "tcp://eventstore1:1113");
     await esConnection.connect();
     esConnection.once('connected', function (tcpEndPoint) {
-        console.log('Connected to eventstore at ' + tcpEndPoint.host + ":" + tcpEndPoint.port);
+      console.log('Connected to eventstore at ' + tcpEndPoint.host + ":" + tcpEndPoint.port);
     });
     return esConnection
-  } catch(error) {
+  } catch (error) {
     console.error(error)
   }
 }
@@ -100,8 +100,20 @@ const setup = async () => {
     acks: 1,
     timeout: 1000,
   })
+  // Not best way to do this, but it works and is fast, so
+  //TODO: find better way to create topic :)
+  const admin = kafka.admin()
+  await admin.createTopics({
+    waitForLeaders: true,
+    topics: [{
+      topic: MEMBERSHIP_TOPIC_NAME,
+      numPartitions: 100,     // default: 1
+    }],
+  })
   const esConnection = await createEventStoreConnection()
-  const kafkaProducer = kafka.producer()
+  const kafkaProducer = kafka.producer({
+    allowAutoTopicCreation: false
+  })
   await kafkaProducer.connect()
   const app = new Koa();
   const router = new Router();

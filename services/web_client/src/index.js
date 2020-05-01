@@ -6,10 +6,12 @@ const COMMANDS = {
   REMOVE_FROM_GROUP: 'REMOVE_FROM_GROUP',
 }
 
+let interval = null;
+
 const App = () => {
   const [userId, setUserId] = React.useState('123')
   const [groupId, setGroupId] = React.useState('456')
-  const issueCommand = async (command) => {
+  const issueCommand = async (command, userId, groupId) => {
     try {
       await fetch(`http://localhost:9001/group/${groupId}/${userId}`, {
         method: command === COMMANDS.ADD_TO_GROUP ? 'POST' : 'DELETE',
@@ -37,12 +39,24 @@ const App = () => {
         </div>
       </section>
 
-      <button onClick={React.useCallback(() => issueCommand(COMMANDS.ADD_TO_GROUP))}>
+      <button onClick={React.useCallback(() => issueCommand(COMMANDS.ADD_TO_GROUP, userId, groupId))}>
         Add to group
       </button>
-      <button onClick={React.useCallback(() => issueCommand(COMMANDS.REMOVE_FROM_GROUP))}>
+      <button onClick={React.useCallback(() => issueCommand(COMMANDS.REMOVE_FROM_GROUP, userId, groupId))}>
         Remove from group
-        </button>
+      </button>
+      <button onClick={React.useCallback(() => {
+        interval = setInterval(() => issueCommand(
+          COMMANDS.ADD_TO_GROUP,
+          ((Math.random() * 100000)).toFixed(0),
+          ((Math.random() * 1000)).toFixed(0)
+        ), 10)
+      })}>
+        Spam random groups
+      </button>
+      <button onClick={React.useCallback(() => clearInterval(interval))}>
+        Stop spam
+      </button>
     </div>
   );
 };
