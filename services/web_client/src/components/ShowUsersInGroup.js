@@ -28,7 +28,7 @@ const ShowUsersInGroup = ({ className }) => {
       {!loading && (
         <label>
           UserID
-          <input value={userId} onChange={onChange} />
+          <input type="number" value={userId} onChange={onChange} />
         </label>
       )}
       <button onClick={onClick}>

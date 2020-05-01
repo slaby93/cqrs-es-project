@@ -27,12 +27,12 @@ const ShowUsersInGroup = React.memo(() => {
       <div>
         <div>
           <label>GroupID
-            <input value={groupId} onChange={React.useCallback(event => setGroupId(event.target.value), [userId])} />
+            <input type="number" value={groupId} onChange={React.useCallback(event => setGroupId(event.target.value), [userId])} />
           </label>
         </div>
         <div>
           <label>UserID
-            <input value={userId} onChange={React.useCallback(event => setUserId(event.target.value), [userId])} />
+            <input type="number" value={userId} onChange={React.useCallback(event => setUserId(event.target.value), [userId])} />
           </label>
         </div>
       </div>
