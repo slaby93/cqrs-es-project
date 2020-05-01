@@ -22,6 +22,7 @@ const ERRORS = {
   USER_NOT_IN_GROUP: 'USER_NOT_IN_GROUP',
 }
 const STREAM_NAME = "groups_stream";
+const SIGNALS = ["SIGUSR2", "SIGHUP", "SIGINT", "SIGQUIT", "SIGTERM"]
 
 const handleRoute = (command, eventType, kafkaProducer, esConnection) => (async (ctx, next) => {
   const [groupid, userid] = ctx.captures
@@ -39,6 +40,7 @@ const handleRoute = (command, eventType, kafkaProducer, esConnection) => (async 
       topic: MEMBERSHIP_TOPIC_NAME,
       messages: [
         {
+          key: userid,
           value: JSON.stringify(event),
         }
       ],
@@ -73,8 +75,18 @@ const validators = {
 }
 
 const createRoutes = (router, kafkaProducer, esConnection) => {
-  router.post("/group/:groupid/:userid", handleRoute(COMMANDS.ADD_TO_GROUP, EVENTS.ADDED_TO_GROUP, kafkaProducer, esConnection))
-  router.delete("/group/:groupid/:userid", handleRoute(COMMANDS.REMOVE_FROM_GROUP, EVENTS.REMOVED_FROM_GROUP, kafkaProducer, esConnection))
+  router.post("/group/:groupid/:userid", handleRoute(
+    COMMANDS.ADD_TO_GROUP,
+    EVENTS.USER_ADDED_TO_GROUP,
+    kafkaProducer,
+    esConnection
+  ))
+  router.delete("/group/:groupid/:userid", handleRoute(
+    COMMANDS.REMOVE_FROM_GROUP,
+    EVENTS.USER_REMOVED_FROM_GROUP,
+    kafkaProducer,
+    esConnection
+  ))
 }
 
 const createEventStoreConnection = async () => {
@@ -111,8 +123,11 @@ const setup = async () => {
     }],
   })
   const esConnection = await createEventStoreConnection()
-  const kafkaProducer = kafka.producer({
-    allowAutoTopicCreation: false
+  const kafkaProducer = kafka.producer()
+  SIGNALS.forEach(signal => {
+    process.on(signal, () => {
+      kafkaProducer && kafkaProducer.disconnect()
+    })
   })
   await kafkaProducer.connect()
   const app = new Koa();
