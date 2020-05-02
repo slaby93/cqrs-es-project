@@ -1,9 +1,15 @@
 import * as React from "react";
 import styled from "styled-components"
 
-const fetchUserFriends = async () => {
-  //TODO query ReadModel for groups
-  return { "test": true }
+const fetchUserFriends = async userId => {
+  try {
+    const result = await fetch(`http://localhost:9002/user/${userId}/friends/`)
+    const parsedResult = await result.json()
+    return { response: parsedResult }
+  } catch (error) {
+    console.error(error)
+    return { error: JSON.stringify(error) }
+  }
 }
 
 const ShowUsersInGroup = ({ className }) => {
