@@ -9,7 +9,6 @@ const { Kafka } = require('kafkajs')
 
 const {
   MEMBERSHIP_TOPIC_NAME,
-  COMMANDS,
   SIGNALS,
 } = require('./constants')
 
@@ -53,6 +52,7 @@ const main = async () => {
   SIGNALS.forEach(signal => {
     process.on(signal, () => {
       kafkaProducer && kafkaProducer.disconnect()
+      process.exit()
     })
   })
   await kafkaProducer.connect()

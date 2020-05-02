@@ -23,6 +23,18 @@ services:
       - main
     volumes:
       - "./services/commands_processor/src/:/app/src"
+  query_processor:
+    depends_on:
+      - zookeeper
+      - kafka
+    build:
+      context: services/query_processor
+    ports:
+      - "9002:9002"
+    networks:
+      - main
+    volumes:
+      - "./services/query_processor/src/:/app/src"
   groups_service:
     depends_on:
       - zookeeper
@@ -32,6 +44,10 @@ services:
       context: services/groups_service
     networks:
       - main
+    environment:
+      - REDIS_HOST=redis
+      - KAFKA_HOST=kafka
+      - KAFKA_PORT=9093
     volumes:
       - "./services/groups_service/src/:/app/src"
   eventstore1:
@@ -77,6 +93,14 @@ services:
     image: 'bitnami/redis:latest'
     ports:
       - "6379:6379"
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    networks:
+      - main
+  redis_query_processor:
+    image: 'bitnami/redis:latest'
+    ports:
+      - "6380:6379"
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
     networks:
