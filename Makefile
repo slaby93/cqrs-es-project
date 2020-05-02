@@ -1,3 +1,4 @@
 start:
 	docker-compose rm -svf 
-	docker-compose up --build --remove-orphans
+	docker-compose build --parallel
+	docker-compose up --remove-orphans

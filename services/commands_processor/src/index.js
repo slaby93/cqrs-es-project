@@ -37,14 +37,12 @@ const main = async () => {
     acks: 1,
     timeout: 1000,
   })
-  // Not best way to do this, but it works and is fast, so
-  //TODO: find better way to create topic :)
   const admin = kafka.admin()
   await admin.createTopics({
     waitForLeaders: true,
     topics: [{
       topic: MEMBERSHIP_TOPIC_NAME,
-      numPartitions: 100,     // default: 1
+      numPartitions: 3,
     }],
   })
   const esConnection = await createEventStoreConnection()

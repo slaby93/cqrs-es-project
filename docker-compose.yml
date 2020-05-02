@@ -33,6 +33,11 @@ services:
       - "9002:9002"
     networks:
       - main
+    environment:
+      - REST_PORT=9002
+      - REDIS_HOST=redis_query_processor
+      - KAFKA_HOST=kafka
+      - KAFKA_PORT=9093
     volumes:
       - "./services/query_processor/src/:/app/src"
   groups_service:

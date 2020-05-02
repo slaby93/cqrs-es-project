@@ -30,7 +30,6 @@ const createConnections = async () => {
     timeout: 1000,
   })
   const kafkaProducer = kafka.producer({
-    groupId: KAFKA_GROUP_ID,
   })
   const kafkaConsumer = kafka.consumer({
     groupId: KAFKA_GROUP_ID,
