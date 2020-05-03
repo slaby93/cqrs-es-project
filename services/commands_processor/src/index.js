@@ -6,7 +6,7 @@ const logger = require('koa-logger')
 const cors = require('@koa/cors');
 const esClient = require('node-eventstore-client');
 const { Kafka } = require('kafkajs')
-
+const { startGrpc } = require('./grpc/grpc')
 const {
   MEMBERSHIP_TOPIC_NAME,
   SIGNALS,
@@ -61,7 +61,6 @@ const cleanup = cb => {
   SIGNALS.forEach(signal => {
     process.on(signal, async () => {
       try {
-        console.log(signal)
         if (cb) await cb()
       } finally {
         process.exit()
@@ -86,17 +85,17 @@ const createRESTServer = async (kafkaProducer, esConnection) => {
 
 
 const main = async () => {
-  const {
-    esConnection,
-    kafkaProducer
-  } = await createConnections()
-  const app = await createRESTServer(kafkaProducer, esConnection)
-  cleanup(async () => {
-    if (kafkaProducer) await kafkaProducer.disconnect()
-    if (esConnection) esConnection.close()
-    if(app) app.removeAllListeners()
-  })
-
+  startGrpc()
+  // const {
+  //   esConnection,
+  //   kafkaProducer
+  // } = await createConnections()
+  // const app = await createRESTServer(kafkaProducer, esConnection)
+  // cleanup(async () => {
+  //   if (kafkaProducer) await kafkaProducer.disconnect()
+  //   if (esConnection) esConnection.close()
+  //   if(app) app.removeAllListeners()
+  // })
 }
 
 main()
