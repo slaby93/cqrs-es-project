@@ -20,6 +20,11 @@ const createRoutes = (router, kafkaProducer, esConnection) => {
     kafkaProducer,
     esConnection
   ))
+  router.get("/restart", async (ctx, next) => {
+    ctx.body = JSON.stringify({
+      "a": 1
+    })
+  })
 }
 
 const validators = {
