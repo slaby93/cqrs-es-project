@@ -69,11 +69,11 @@ const cleanup = cb => {
   })
 }
 
-const createRESTServer = async (kafkaProducer, esConnection) => {
+const createRESTServer = async (kafkaProducer, esConnection, groupsServiceClient) => {
   const { REST_PORT } = process.env
   const app = new Koa();
   const router = new Router();
-  createRoutes(router, kafkaProducer, esConnection)
+  createRoutes(router, kafkaProducer, esConnection, groupsServiceClient)
   app
     .use(cors())
     .use(logger())
@@ -85,12 +85,22 @@ const createRESTServer = async (kafkaProducer, esConnection) => {
 
 
 const main = async () => {
-  startGrpc()
+  const { GRPC_HOST, GRPC_PORT } = process.env
+
+  const { groupsServiceClient } = startGrpc({ 
+    host: GRPC_HOST,
+    port: GRPC_PORT,
+  })
+  groupsServiceClient.validate({
+    type:'ADD_USER_TO_GROUP',
+    userId: 1,
+    groupId: 2,
+  }, console.log)
   // const {
   //   esConnection,
   //   kafkaProducer
   // } = await createConnections()
-  // const app = await createRESTServer(kafkaProducer, esConnection)
+  // const app = await createRESTServer(kafkaProducer, esConnection, groupsServiceClient)
   // cleanup(async () => {
   //   if (kafkaProducer) await kafkaProducer.disconnect()
   //   if (esConnection) esConnection.close()

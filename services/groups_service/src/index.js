@@ -5,10 +5,13 @@ const {
   KAFKA_GROUP_ID,
   SIGNALS
 } = require('./constants.js')
+const { startGrpc } = require('./grpc/grpc')
 const { handleKafkaConsumerEvents } = require('./kafkaEventConsumerHandler')
 
 const createConnections = async () => {
   const {
+    GRPC_HOST, 
+    GRPC_PORT,
     REDIS_HOST,
     KAFKA_HOST,
     KAFKA_PORT,
@@ -16,6 +19,10 @@ const createConnections = async () => {
   if (!REDIS_HOST || !KAFKA_HOST || !KAFKA_PORT) {
     throw new Error('Missing env varaibles!')
   }
+  startGrpc({ 
+    host: GRPC_HOST,
+    port: GRPC_PORT,
+  })
   const redisClient = redis.createClient({
     host: REDIS_HOST,
     db: 1,
