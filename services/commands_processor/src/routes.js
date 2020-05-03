@@ -21,9 +21,33 @@ const createRoutes = (router, kafkaProducer, esConnection) => {
     esConnection
   ))
   router.get("/restart", async (ctx, next) => {
-    ctx.body = JSON.stringify({
-      "a": 1
+    let isEnd = false;
+    let index = 0;
+    let tmp = []
+    while (!isEnd) {
+      const { events, isEndOfStream } = await esConnection.readStreamEventsForward(STREAM_NAME, index, 1000)
+      index += 1000
+      isEnd = isEndOfStream
+      tmp.push(events)
+    }
+    tmp = tmp.flatMap(events => events.map(({ event }) => event.data.toString()))
+    tmp.forEach(ev => {
+      const { userId } = JSON.parse(ev)
+      kafkaProducer.send({
+        topic: MEMBERSHIP_TOPIC_NAME,
+        messages: [
+          {
+            key: userId,
+            value: ev,
+          }
+        ],
+        compression: 1
+      })
     })
+    ctx.body = JSON.stringify({
+      "a": tmp
+    })
+    next()
   })
 }
 
