@@ -16,7 +16,6 @@ const handleEvent = async (message, redisClient) => {
   try {
     const parsedValue = JSON.parse(message.value.toString())
     eventHandlers[parsedValue.type](parsedValue, redisClient)
-    console.log(`The event was successfully handled`)
   } catch (error) {
     console.error(error)
   }

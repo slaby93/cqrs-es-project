@@ -33,6 +33,7 @@ const createConnections = async () => {
   })
   const kafkaConsumer = kafka.consumer({
     groupId: KAFKA_GROUP_ID,
+    maxInFlightRequests: 5,
   })
   await kafkaProducer.connect()
   await kafkaConsumer.connect()
