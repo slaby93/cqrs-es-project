@@ -6,7 +6,6 @@ const logger = require('koa-logger')
 const cors = require('@koa/cors');
 const esClient = require('node-eventstore-client');
 const { Kafka } = require('kafkajs')
-const { startGrpc } = require('./grpc/grpc')
 const {
   MEMBERSHIP_TOPIC_NAME,
   SIGNALS,
@@ -69,11 +68,11 @@ const cleanup = cb => {
   })
 }
 
-const createRESTServer = async (kafkaProducer, esConnection, groupsServiceClient) => {
+const createRESTServer = async (kafkaProducer, esConnection) => {
   const { REST_PORT } = process.env
   const app = new Koa();
   const router = new Router();
-  createRoutes(router, kafkaProducer, esConnection, groupsServiceClient)
+  createRoutes(router, kafkaProducer, esConnection)
   app
     .use(cors())
     .use(logger())
@@ -85,27 +84,16 @@ const createRESTServer = async (kafkaProducer, esConnection, groupsServiceClient
 
 
 const main = async () => {
-  const { GRPC_HOST, GRPC_PORT } = process.env
-
-  const { groupsServiceClient } = startGrpc({ 
-    host: GRPC_HOST,
-    port: GRPC_PORT,
+  const {
+    esConnection,
+    kafkaProducer
+  } = await createConnections()
+  const app = await createRESTServer(kafkaProducer, esConnection)
+  cleanup(async () => {
+    if (kafkaProducer) await kafkaProducer.disconnect()
+    if (esConnection) esConnection.close()
+    if(app) app.removeAllListeners()
   })
-  groupsServiceClient.validate({
-    type:'ADD_USER_TO_GROUP',
-    userId: 1,
-    groupId: 2,
-  }, console.log)
-  // const {
-  //   esConnection,
-  //   kafkaProducer
-  // } = await createConnections()
-  // const app = await createRESTServer(kafkaProducer, esConnection, groupsServiceClient)
-  // cleanup(async () => {
-  //   if (kafkaProducer) await kafkaProducer.disconnect()
-  //   if (esConnection) esConnection.close()
-  //   if(app) app.removeAllListeners()
-  // })
 }
 
 main()
