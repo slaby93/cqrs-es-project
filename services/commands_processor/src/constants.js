@@ -12,7 +12,7 @@ const ERRORS = {
   USER_NOT_IN_GROUP: 'USER_NOT_IN_GROUP',
 }
 const STREAM_NAME = "groups_stream";
-const SIGNALS = ["SIGUSR2", "SIGHUP", "SIGINT", "SIGQUIT", "SIGTERM"]
+const SIGNALS = ["SIGUSR2", "SIGHUP", "SIGQUIT", "SIGTERM"]
 
 module.exports = {
   MEMBERSHIP_TOPIC_NAME,

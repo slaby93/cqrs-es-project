@@ -46,13 +46,13 @@ const ShowUsersInGroup = React.memo(() => {
         <button onClick={React.useCallback(() => {
           interval = setInterval(() => issueCommand(
             COMMANDS.ADD_TO_GROUP,
-            ((Math.random() * 100000)).toFixed(0),
-            ((Math.random() * 1000)).toFixed(0)
+            ((Math.random() * 10000)).toFixed(0),
+            ((Math.random() * 100)).toFixed(0)
           ), 10)
         })}>
           Spam random groups
       </button>
-        <button onClick={React.useCallback(() => clearInterval(interval))}>
+      <button onClick={React.useCallback(() => clearInterval(interval))}>
           Stop spam
       </button>
       </div>

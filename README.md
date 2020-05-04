@@ -15,7 +15,7 @@ make
 Go to `http://localhost:9000` to issue command.
 
 ## Design 
-Client - web_client - Simple React application that servers as commands issuer. Commands are being sent via HTTP protocol to commands_processor service.
+Client - web_client - Simple React application that serve as a commands issuer. Commands are being sent via HTTP protocol to commands_processor service.
 Commands Procesor - Have simple REST API that after accepting command, create event and sends it to kafka topic and eventStore. Command must be a transaction so if either kafka or eventstore is down, we'll return 500.
 
 Client have two avilable commands

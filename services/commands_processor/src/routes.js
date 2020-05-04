@@ -20,6 +20,43 @@ const createRoutes = (router, kafkaProducer, esConnection) => {
     kafkaProducer,
     esConnection
   ))
+  router.get("/restart", async (ctx, next) => {
+    await _restoreAllEvents(esConnection, kafkaProducer)
+    ctx.res.statusCode = 200
+    next()
+  })
+}
+
+const _restoreAllEvents = async (esConnection, kafkaProducer) => {
+  const BATCH_SIZE = 1000
+  const response = await esConnection.readStreamEventsForward(STREAM_NAME, 0, 1)
+  const totalNumberOfEvents = response.lastEventNumber.low
+  if (!totalNumberOfEvents) throw new Error('No events to reload!')
+
+  let arrayOfPromise = []
+  for (let index = 0; index < totalNumberOfEvents; index += BATCH_SIZE) {
+    arrayOfPromise.push(_handleEventBatch(esConnection, kafkaProducer, STREAM_NAME, index, BATCH_SIZE))
+  }
+  await Promise.all(arrayOfPromise)
+}
+
+const _handleEventBatch = async (esConnection, kafkaProducer, stream_name, offset, count) => {
+  const { events } = await esConnection.readStreamEventsForward(stream_name, offset, count)
+  events
+    .map(({ event }) => event.data.toString())
+    .forEach(event => {
+      const { userId } = JSON.parse(event)
+      kafkaProducer.send({
+        topic: MEMBERSHIP_TOPIC_NAME,
+        messages: [
+          {
+            key: userId,
+            value: event,
+          }
+        ],
+        compression: 1
+      })
+    })
 }
 
 const validators = {

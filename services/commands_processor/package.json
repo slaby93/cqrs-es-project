@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon ./src/index.js"
+    "start": "nodemon ./src/index.js",
+    "debug": "GRPC_HOST=0.0.0.0 GRPC_PORT=50051 REST_PORT=3000 KAFKA_HOST=localhost KAFKA_PORT=9092 nodemon --inspect ./src/index.js"
   },
   "keywords": [],
   "author": "",

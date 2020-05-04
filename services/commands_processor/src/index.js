@@ -6,7 +6,6 @@ const logger = require('koa-logger')
 const cors = require('@koa/cors');
 const esClient = require('node-eventstore-client');
 const { Kafka } = require('kafkajs')
-
 const {
   MEMBERSHIP_TOPIC_NAME,
   SIGNALS,
@@ -28,11 +27,13 @@ const createEventStoreConnection = async () => {
   }
 }
 
-const main = async () => {
+const createConnections = async () => {
+  const { KAFKA_HOST, KAFKA_PORT } = process.env
+
   const kafka = new Kafka({
-    clientId: 'my-app',
+    clientId: 'commands-processor',
     brokers: [
-      "kafka:9093"
+      `${KAFKA_HOST}:${KAFKA_PORT}`,
     ],
     acks: 1,
     timeout: 1000,
@@ -47,13 +48,28 @@ const main = async () => {
   })
   const esConnection = await createEventStoreConnection()
   const kafkaProducer = kafka.producer()
+  await kafkaProducer.connect()
+
+  return {
+    esConnection,
+    kafkaProducer
+  }
+}
+
+const cleanup = cb => {
   SIGNALS.forEach(signal => {
-    process.on(signal, () => {
-      kafkaProducer && kafkaProducer.disconnect()
-      process.exit()
+    process.on(signal, async () => {
+      try {
+        if (cb) await cb()
+      } finally {
+        process.exit()
+      }
     })
   })
-  await kafkaProducer.connect()
+}
+
+const createRESTServer = async (kafkaProducer, esConnection) => {
+  const { REST_PORT } = process.env
   const app = new Koa();
   const router = new Router();
   createRoutes(router, kafkaProducer, esConnection)
@@ -61,7 +77,23 @@ const main = async () => {
     .use(cors())
     .use(logger())
     .use(router.routes())
-    .listen(9001);
+    .listen(REST_PORT);
+  return app
+}
+
+
+
+const main = async () => {
+  const {
+    esConnection,
+    kafkaProducer
+  } = await createConnections()
+  const app = await createRESTServer(kafkaProducer, esConnection)
+  cleanup(async () => {
+    if (kafkaProducer) await kafkaProducer.disconnect()
+    if (esConnection) esConnection.close()
+    if(app) app.removeAllListeners()
+  })
 }
 
 main()

@@ -21,6 +21,12 @@ services:
       - "9001:9001"
     networks:
       - main
+    environment:
+      - GRPC_HOST=0.0.0.0 
+      - GRPC_PORT=50051
+      - REST_PORT=9001
+      - KAFKA_HOST=kafka
+      - KAFKA_PORT=9093
     volumes:
       - "./services/commands_processor/src/:/app/src"
   query_processor:
@@ -34,6 +40,8 @@ services:
     networks:
       - main
     environment:
+      - GRPC_HOST=0.0.0.0 
+      - GRPC_PORT=50052
       - REST_PORT=9002
       - REDIS_HOST=redis_query_processor
       - KAFKA_HOST=kafka

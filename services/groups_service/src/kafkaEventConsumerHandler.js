@@ -14,12 +14,12 @@ const handleKafkaConsumerEvents = async (kafkaConsumer, redisClient, kafkaProduc
   });
 }
 
+
 const handleMessage = async (message, redisClient, kafkaProducer) => {
   try {
     const parsedValue = JSON.parse(message.value.toString())
-    eventHandlers[parsedValue.type](parsedValue, redisClient, kafkaProducer)
-    console.log(`The event was successfully handled`)
-  } catch(error) {
+    await eventHandlers[parsedValue.type](parsedValue, redisClient, kafkaProducer)
+  } catch (error) {
     console.error(error)
   }
 }
